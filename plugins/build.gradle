@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'groovy'
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation gradleApi()
+    implementation localGroovy()
+    compileOnly project(":annotation")
+    implementation group: 'org.ow2.asm', name: 'asm', version: '6.0'
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: '6.0'
+    implementation 'com.android.tools.build:gradle:3.4.1'
+}
+
+if (develop) {
+    apply plugin: 'maven'
+
+    uploadArchives {
+        repositories.mavenDeployer {
+            repository(url: uri('../repo')) {
+                pom.groupId = "xyz.yorek.plugin"
+                pom.artifactId = "methodtrace"
+                pom.version = "1.0.1"
+            }
+        }
+    }
+}

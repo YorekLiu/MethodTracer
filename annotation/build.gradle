@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+
+if (develop) {
+    apply plugin: 'maven'
+
+    uploadArchives {
+        repositories.mavenDeployer {
+            repository(url: uri('../repo')) {
+                pom.groupId = "xyz.yorek.plugin"
+                pom.artifactId = "mt-inst-annotation"
+                pom.version = "1.0.0"
+            }
+        }
+    }
+}
