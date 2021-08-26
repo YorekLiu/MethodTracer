@@ -1,7 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'method-trace'
+}
+if (applyPlugin.toBoolean()) {
+    apply plugin: 'method-trace'
 }
 
 android {
@@ -37,25 +39,27 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
 
-methodTrace {
-    enable = true
+if (applyPlugin.toBoolean()) {
+    methodTrace {
+        enable = true
 
-    /**
-     * 扫描结果文件输出路径，默认取build/asmoutput/result.txt
-     */
-    // output = null
+        /**
+         * 扫描结果文件输出路径，默认取build/asmoutput/result.txt
+         */
+        // output = null
 
-    /**
-     * 要检测的API表，整体是一个Map<String, List<String>>，格式为类名:List<方法名>
-     * 其中类名支持+，同aspectJ语法
-     * 若方法名为*，则为检测该类下所有方法的调用
-     */
-    apiList = [
-            "java/lang/Thread":["<init>", "start"],
-            "android/telephony/TelephonyManager":["getDeviceId"],
-            "android/content/pm/PackageManager":["getInstalledPackages"],
-            "android/widget/ImageView+":["setImageDrawable", "setImageBitmap"],
-            "android/app/ActivityManager" : ["getRunningAppProcesses"],
-            "android/os/Process" : ["myPid"]
-    ]
+        /**
+         * 要检测的API表，整体是一个Map<String, List<String>>，格式为类名:List<方法名>
+         * 其中类名支持+，同aspectJ语法
+         * 若方法名为*，则为检测该类下所有方法的调用
+         */
+        apiList = [
+                "java/lang/Thread"                  : ["<init>", "start"],
+                "android/telephony/TelephonyManager": ["getDeviceId"],
+                "android/content/pm/PackageManager" : ["getInstalledPackages"],
+                "android/widget/ImageView+"         : ["setImageDrawable", "setImageBitmap"],
+                "android/app/ActivityManager"       : ["getRunningAppProcesses"],
+                "android/os/Process"                : ["myPid"]
+        ]
+    }
 }

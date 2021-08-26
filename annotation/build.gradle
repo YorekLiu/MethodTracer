@@ -7,7 +7,7 @@ java {
     targetCompatibility JavaVersion.VERSION_1_8
 }
 
-if (develop) {
+if (developer) {
     apply plugin: 'maven'
 
     uploadArchives {
