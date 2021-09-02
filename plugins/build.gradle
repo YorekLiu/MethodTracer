@@ -11,6 +11,8 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm', version: '6.0'
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: '6.0'
     implementation 'com.android.tools.build:gradle:3.4.1'
+    implementation 'com.google.gradle:osdetector-gradle-plugin:1.6.0'
+//    implementation 'com.tencent.mm:SevenZip:1.2.17'
 }
 
 if (developer) {
@@ -19,9 +21,9 @@ if (developer) {
     uploadArchives {
         repositories.mavenDeployer {
             repository(url: uri('../repo')) {
-                pom.groupId = "xyz.yorek.plugin"
-                pom.artifactId = "methodtrace"
-                pom.version = "1.0.1"
+                pom.groupId = "com.github.YorekLiu"
+                pom.artifactId = "MethodTracer"
+                pom.version = localPluginVersion
             }
         }
     }

@@ -1,6 +1,7 @@
 package xyz.yorek.plugin.mt
 
-
+import com.android.build.gradle.AppExtension
+import xyz.yorek.plugin.mt.transform.PackageNativeLibs2AssetTransform
 import xyz.yorek.plugin.mt.visitor.BaseClassVisitor
 import xyz.yorek.plugin.mt.visitor.CodeScanVisitor
 import xyz.yorek.plugin.mt.visitor.MethodProxyVisitor
@@ -21,6 +22,13 @@ class MethodTracePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("methodTrace", MethodTraceExtension)
 
+        //osdetector change its plugin name in 1.4.0
+        try {
+            project.apply plugin: 'osdetector'
+        } catch (Throwable e) {
+            project.apply plugin: 'com.google.osdetector'
+        }
+
         if (!project.plugins.hasPlugin('com.android.application')) {
             throw new GradleException('MethodTracePlugin Plugin, Android Application plugin required')
         }
@@ -34,6 +42,8 @@ class MethodTracePlugin implements Plugin<Project> {
                 }
             }
         }
+
+        project.extensions.getByType(AppExtension).registerTransform(new PackageNativeLibs2AssetTransform(project))
     }
 
     private static List<Class<BaseClassVisitor>> getVisitorList() {

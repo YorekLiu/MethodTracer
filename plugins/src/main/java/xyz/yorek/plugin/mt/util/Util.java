@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -164,4 +165,37 @@ public final class Util {
         }
     }
 
+    public static boolean sevenZipInputDir(File inputDir, File outputFile, String sevenZipPath) {
+        String outPath = inputDir.getAbsolutePath();
+        String path = outPath + File.separator + "*";
+        String cmd = sevenZipPath;
+
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outputFile.getAbsolutePath(), path, "-mx9");
+        pb.redirectErrorStream(true);
+        Process pro = null;
+        LineNumberReader reader = null;
+        try {
+            pro = pb.start();
+            reader = new LineNumberReader(new InputStreamReader(pro.getInputStream()));
+            while (reader.readLine() != null) { }
+        } catch (IOException e) {
+            outputFile.delete();
+            Log.e("Util", "7a file failed");
+            return false;
+        } finally {
+            //destroy the stream
+            try {
+                pro.waitFor();
+            } catch (Throwable ignored) {
+                // Ignored.
+            }
+            try {
+                pro.destroy();
+            } catch (Throwable ignored) {
+                // Ignored.
+            }
+            closeQuietly(reader);
+        }
+        return true;
+    }
 }

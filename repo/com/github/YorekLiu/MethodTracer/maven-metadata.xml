@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.github.YorekLiu</groupId>
+  <artifactId>MethodTracer</artifactId>
+  <versioning>
+    <release>dev</release>
+    <versions>
+      <version>dev</version>
+    </versions>
+    <lastUpdated>20210901060412</lastUpdated>
+  </versioning>
+</metadata>
