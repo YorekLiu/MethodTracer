@@ -59,13 +59,13 @@ class PackageNativeLibs2AssetTransform extends Transform {
                 File assetFile = new File("${mProject.getBuildDir().getAbsolutePath()}/intermediates/merged_assets/${transformInvocation.context.variantName}/out/applibs")
                 Util.sevenZipInputDir(outputFile, assetFile, _7zip)
 
-                File dest = transformInvocation.outputProvider.getContentLocation(
-                        directoryInput.name,
-                        directoryInput.contentTypes,
-                        directoryInput.scopes,
-                        Format.DIRECTORY
-                )
-                FileUtils.copyDirectory(directoryInput.file, dest)
+//                File dest = transformInvocation.outputProvider.getContentLocation(
+//                        directoryInput.name,
+//                        directoryInput.contentTypes,
+//                        directoryInput.scopes,
+//                        Format.DIRECTORY
+//                )
+//                FileUtils.copyDirectory(directoryInput.file, dest)
             }
             transformInput.jarInputs.forEach { jarInput ->
                 Log.v(getName(), "jar: ${jarInput.file.absolutePath}")

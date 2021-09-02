@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 
 /**
  * Created by yorek.liu on 2021/8/12
@@ -18,15 +19,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<ImageView>(R.id.imageView1).setImageBitmap(
-            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
-        )
+        Glide.with(this)
+            .load("https://mathiasbynens.be/demo/animated-webp-supported.webp")
+            .into(findViewById<ImageView>(R.id.imageView1))
+
+//        findViewById<ImageView>(R.id.imageView1).setImageBitmap(
+//            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
+//        )
         findViewById<ImageView>(R.id.imageView2).setImageBitmap(
             BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
         )
 
-        testPid()
-        testProcessName()
+//        testPid()
+//        testProcessName()
     }
 
     private fun testPid() {
