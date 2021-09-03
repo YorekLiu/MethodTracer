@@ -3,10 +3,14 @@ package xyz.yorek.plugin.sample
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.facebook.soloader.DirectorySoSource
+import com.facebook.soloader.SoLoader
+import com.facebook.soloader.SoSource
 import dalvik.system.PathClassLoader
 import java.io.BufferedInputStream
 import java.io.File
 import java.lang.Exception
+import java.lang.reflect.Proxy
 import java.nio.file.CopyOption
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -43,11 +47,14 @@ object PackedAppLibsExtract {
         }
         zipInputStream.close()
 
-        try {
-            registerNativeLibPath(context, File(outputDir.absolutePath + File.separator + "lib" + File.separator + "arm64-v8a"))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val file = File(outputDir.absolutePath + File.separator + "lib" + File.separator + "arm64-v8a")
+        val directorySoSource = DirectorySoSource(file, SoSource.LOAD_FLAG_ALLOW_IMPLICIT_PROVISION)
+        SoLoader.prependSoSource(directorySoSource)
+//        try {
+//            registerNativeLibPath(context, file)
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
     }
 
     @Throws(Exception::class)

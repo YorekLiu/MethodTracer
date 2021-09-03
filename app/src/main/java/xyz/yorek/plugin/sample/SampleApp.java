@@ -2,6 +2,9 @@ package xyz.yorek.plugin.sample;
 
 import android.app.Application;
 import android.content.Context;
+
+import com.facebook.soloader.SoLoader;
+
 /**
  * Created by yorek.liu on 2021/9/2
  *
@@ -20,6 +23,11 @@ public class SampleApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        try {
+            SoLoader.init(this, SoLoader.SOLOADER_ALLOW_ASYNC_INIT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         PackedAppLibsExtract.INSTANCE.extract(this);
     }
 

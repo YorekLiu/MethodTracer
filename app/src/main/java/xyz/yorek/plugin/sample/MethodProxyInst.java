@@ -9,6 +9,8 @@ import android.util.Log;
 
 import androidx.annotation.Keep;
 
+import com.facebook.soloader.SoLoader;
+
 import java.io.File;
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class MethodProxyInst {
 
     @MethodProxy(target = System.class, method = "loadLibrary")
     public static void loadLibrary(String libname) {
-        Log.e(TAG, "loadLibrary:" + libname, new Throwable());
+//        Log.e(TAG, "loadLibrary:" + libname, new Throwable());
         File extractDir = PackedAppLibsExtract.INSTANCE.getDir(SampleApp.getApplication());
         if (extractDir.exists() && extractDir.isDirectory() && extractDir.canRead()) {
             File libFile = new File(extractDir, "lib");
@@ -53,7 +55,8 @@ public class MethodProxyInst {
                 if (abiLibFile.exists() && abiLibFile.isDirectory() && abiLibFile.canRead()) {
                     File targetPackedLib = new File(abiLibFile, "lib" + libname + ".so");
                     if (targetPackedLib.exists() && targetPackedLib.canRead()) {
-                        System.load(targetPackedLib.getAbsolutePath());
+//                        System.load(targetPackedLib.getAbsolutePath());
+                        SoLoader.loadLibrary(libname);
                         return;
                     }
                 }
