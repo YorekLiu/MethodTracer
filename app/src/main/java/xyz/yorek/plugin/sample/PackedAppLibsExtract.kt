@@ -2,7 +2,9 @@ package xyz.yorek.plugin.sample
 
 import android.app.Application
 import android.content.Context
+import android.os.SystemClock
 import android.util.Log
+import androidx.annotation.WorkerThread
 import com.facebook.soloader.DirectorySoSource
 import com.facebook.soloader.SoLoader
 import com.facebook.soloader.SoSource
@@ -28,7 +30,9 @@ object PackedAppLibsExtract {
     private const val NATIVE_DIR = "palibs"
     private const val PACKED_APP_LIBS_NAME = "applibs.zip"
 
+    @WorkerThread
     fun extract(context: Context) {
+        val begin = SystemClock.uptimeMillis()
         val assetManager = context.assets
         val inputStream = assetManager.open(PACKED_APP_LIBS_NAME)
         val zipInputStream = ZipInputStream(BufferedInputStream(inputStream))
@@ -50,11 +54,8 @@ object PackedAppLibsExtract {
         val file = File(outputDir.absolutePath + File.separator + "lib" + File.separator + "arm64-v8a")
         val directorySoSource = DirectorySoSource(file, SoSource.LOAD_FLAG_ALLOW_IMPLICIT_PROVISION)
         SoLoader.prependSoSource(directorySoSource)
-//        try {
-//            registerNativeLibPath(context, file)
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
+        val costs = SystemClock.uptimeMillis() - begin
+        Log.d(TAG, "extract >>>>>>>>> costs=${costs}ms")
     }
 
     @Throws(Exception::class)

@@ -19,9 +19,11 @@ import xyz.yorek.plugin.mt.util.Util
 class PackageNativeLibs2AssetTransform extends Transform {
 
     final Project mProject
+    final Transform mOriginalTransform
 
-    PackageNativeLibs2AssetTransform(Project project) {
+    PackageNativeLibs2AssetTransform(Project project, Transform original) {
         mProject = project
+        mOriginalTransform = original
     }
 
     @Override
@@ -31,34 +33,50 @@ class PackageNativeLibs2AssetTransform extends Transform {
 
     @Override
     Set<QualifiedContent.ContentType> getInputTypes() {
-        return TransformManager.CONTENT_NATIVE_LIBS
+        return mOriginalTransform == null ? TransformManager.CONTENT_NATIVE_LIBS : mOriginalTransform.inputTypes
     }
 
     @Override
     Set<? super QualifiedContent.Scope> getScopes() {
-        return TransformManager.SCOPE_FULL_PROJECT
+        return mOriginalTransform == null ? TransformManager.SCOPE_FULL_PROJECT : mOriginalTransform.scopes
     }
 
     @Override
     boolean isIncremental() {
-        return true
+        // TODO
+//        return mOriginalTransform == null ? true : mOriginalTransform.scopes
+        return false
     }
 
     @Override
     void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
-        super.transform(transformInvocation)
-        Log.v(getName(), "transform >>>>>>>>> ")
-        def abiFilters = mProject.extensions.getByType(AppExtension).defaultConfig.ndk.abiFilters
-        Log.v(getName(), "abiFilters=$abiFilters")
-        transformInvocation.inputs.forEach { transformInput ->
-            transformInput.directoryInputs.forEach { directoryInput ->
-                Log.v(getName(), "dir: ${directoryInput.file.absolutePath}")
-                File outputFile = new File("${directoryInput.file.absolutePath}_filter")
-                collectFile(directoryInput.file, abiFilters, outputFile)
-                String _7zip = resolve7ZipPath()
-                File assetFile = new File("${mProject.getBuildDir().getAbsolutePath()}/intermediates/merged_assets/${transformInvocation.context.variantName}/out/applibs")
-                Util.sevenZipInputDir(outputFile, assetFile, _7zip)
+        String inputPath
+        if (mOriginalTransform != null) {
+            mOriginalTransform.transform(transformInvocation)
+            inputPath = "${mProject.getBuildDir().getAbsolutePath()}/intermediates/transforms/stripDebugSymbol/${transformInvocation.context.variantName}/0"
+        } else {
+            inputPath = "${mProject.getBuildDir().getAbsolutePath()}/intermediates/transforms/mergeJniLibs/${transformInvocation.context.variantName}/0"
+        }
 
+        def abiFilters = mProject.extensions.getByType(AppExtension).defaultConfig.ndk.abiFilters
+        Log.v(getName(), "found abiFilters=$abiFilters")
+        File inputFile = new File(inputPath)
+        File outputFile = new File("${inputPath}_filter")
+        collectFile(inputFile, abiFilters, outputFile)
+        String _7zip = resolve7ZipPath()
+        File assetFile = new File("${mProject.getBuildDir().getAbsolutePath()}/intermediates/merged_assets/${transformInvocation.context.variantName}/out/applibs")
+        Util.sevenZipInputDir(outputFile, assetFile, _7zip)
+
+        inputFile.deleteDir()
+
+//        transformInvocation.inputs.forEach { transformInput ->
+//            transformInput.directoryInputs.forEach { directoryInput ->
+//                Log.v(getName(), "dir: ${directoryInput.file.absolutePath}")
+//                File outputFile = new File("${directoryInput.file.absolutePath}_filter")
+//                collectFile(directoryInput.file, abiFilters, outputFile)
+//                String _7zip = resolve7ZipPath()
+//                File assetFile = new File("${mProject.getBuildDir().getAbsolutePath()}/intermediates/merged_assets/${transformInvocation.context.variantName}/out/applibs")
+//                Util.sevenZipInputDir(outputFile, assetFile, _7zip)
 //                File dest = transformInvocation.outputProvider.getContentLocation(
 //                        directoryInput.name,
 //                        directoryInput.contentTypes,
@@ -66,18 +84,18 @@ class PackageNativeLibs2AssetTransform extends Transform {
 //                        Format.DIRECTORY
 //                )
 //                FileUtils.copyDirectory(directoryInput.file, dest)
-            }
-            transformInput.jarInputs.forEach { jarInput ->
-                Log.v(getName(), "jar: ${jarInput.file.absolutePath}")
-                File dest = transformInvocation.outputProvider.getContentLocation(
-                        jarInput.name,
-                        jarInput.contentTypes,
-                        jarInput.scopes,
-                        Format.JAR
-                )
-                FileUtils.copyDirectory(jarInput.file, dest)
-            }
-        }
+//            }
+//            transformInput.jarInputs.forEach { jarInput ->
+//                Log.v(getName(), "jar: ${jarInput.file.absolutePath}")
+//                File dest = transformInvocation.outputProvider.getContentLocation(
+//                        jarInput.name,
+//                        jarInput.contentTypes,
+//                        jarInput.scopes,
+//                        Format.JAR
+//                )
+//                FileUtils.copyDirectory(jarInput.file, dest)
+//            }
+//        }
     }
 
     private static void collectFile(File inputFile, Set<String> abiFilters, File outputFile) {

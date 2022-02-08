@@ -15,7 +15,7 @@ if (developer) {
             repository(url: uri('../repo')) {
                 pom.groupId = "xyz.yorek.plugin"
                 pom.artifactId = "mt-inst-annotation"
-                pom.version = "1.0.0"
+                pom.version = "dev"
             }
         }
     }

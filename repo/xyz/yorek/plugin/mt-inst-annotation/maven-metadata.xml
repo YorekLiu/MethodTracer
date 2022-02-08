@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-  <groupId>com.github.YorekLiu</groupId>
-  <artifactId>MethodTracer</artifactId>
+  <groupId>xyz.yorek.plugin</groupId>
+  <artifactId>mt-inst-annotation</artifactId>
   <versioning>
     <release>dev</release>
     <versions>
+      <version>1.0.0</version>
       <version>dev</version>
     </versions>
-    <lastUpdated>20210910030021</lastUpdated>
+    <lastUpdated>20210910053945</lastUpdated>
   </versioning>
 </metadata>
