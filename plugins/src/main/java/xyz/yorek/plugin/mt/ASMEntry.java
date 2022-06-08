@@ -24,10 +24,10 @@ public class ASMEntry {
         ClassVisitor mPrevClassVisitor;
         // build visitorList
         mPrevClassVisitor = classWriter;
-        List<Class<BaseClassVisitor>> baseVisitorClassList = context.getVisitorList();
-        for (Class<BaseClassVisitor> clazz : baseVisitorClassList) {
+        List<Class<? extends BaseClassVisitor>> baseVisitorClassList = context.getVisitorList();
+        for (Class<? extends BaseClassVisitor> clazz : baseVisitorClassList) {
             try {
-                Constructor<BaseClassVisitor> constructor = clazz.getDeclaredConstructor(int.class, ClassVisitor.class);
+                Constructor<? extends BaseClassVisitor> constructor = clazz.getDeclaredConstructor(int.class, ClassVisitor.class);
                 BaseClassVisitor baseClassVisitor = constructor.newInstance(ASM_VERSION, mPrevClassVisitor);
                 baseClassVisitor.setContext(context);
                 mPrevClassVisitor = baseClassVisitor;

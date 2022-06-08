@@ -16,9 +16,9 @@ import xyz.yorek.plugin.mt.visitor.BaseClassVisitor;
 public class TransformContext {
     Configuration configuration;
     FirstTraceContext firstTraceContext;
-    List<Class<BaseClassVisitor>> visitorList;
+    List<Class<? extends BaseClassVisitor>> visitorList;
 
-    public TransformContext(Configuration configuration, FirstTraceContext firstTraceContext, List<Class<BaseClassVisitor>> visitorList) {
+    public TransformContext(Configuration configuration, FirstTraceContext firstTraceContext, List<Class<? extends BaseClassVisitor>> visitorList) {
         this.configuration = configuration;
         this.firstTraceContext = firstTraceContext;
         this.visitorList = visitorList;
@@ -32,7 +32,7 @@ public class TransformContext {
         return firstTraceContext.classGraph;
     }
 
-    public List<Class<BaseClassVisitor>> getVisitorList() {
+    public List<Class<? extends BaseClassVisitor>> getVisitorList() {
         return visitorList;
     }
 
