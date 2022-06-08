@@ -1,5 +1,7 @@
 package xyz.yorek.plugin.mt.model;
 
+import org.objectweb.asm.Type;
+
 import java.util.Locale;
 
 /**
@@ -22,6 +24,10 @@ public class MethodCallerRecord {
 
     @Override
     public String toString() {
-        return String.format(Locale.getDefault(), "%s.%s (opcode=%d signature=%s)", className, methodName, opCode, desc);
+        return String.format(Locale.getDefault(), "%s#%s (opcode=%d signature=%s)", className, methodName, opCode, desc);
+    }
+
+    public String toSimpleString() {
+        return String.format(Locale.getDefault(), "%s#%s %s", Type.getObjectType(className).getClassName(), methodName, desc);
     }
 }

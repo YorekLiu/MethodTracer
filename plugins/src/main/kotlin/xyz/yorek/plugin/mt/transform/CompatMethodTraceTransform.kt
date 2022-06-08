@@ -2,7 +2,9 @@ package xyz.yorek.plugin.mt.transform
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.android.builder.model.AndroidProject.FD_OUTPUTS
 import com.android.utils.FileUtils
+import com.google.common.base.Joiner
 import com.google.common.hash.Hashing
 import org.gradle.api.Project
 import xyz.yorek.plugin.mt.*
@@ -72,8 +74,6 @@ class CompatMethodTraceTransform(
     override fun transform(transformInvocation: TransformInvocation) {
         super.transform(transformInvocation)
 
-
-
         val outputProvider = transformInvocation.outputProvider!!
         val isIncremental = transformInvocation.isIncremental && this.isIncremental
 
@@ -81,7 +81,9 @@ class CompatMethodTraceTransform(
             outputProvider.deleteAll()
         }
 
+        val buildDir = project.buildDir.absolutePath
         val dirName = transformInvocation.context.variantName
+        val reportOutDir = Joiner.on(File.separatorChar).join(buildDir, FD_OUTPUTS, "report")
 
         val changedFiles = ConcurrentHashMap<File, Status>()
         val inputToOutput = ConcurrentHashMap<File, File>()
@@ -129,13 +131,27 @@ class CompatMethodTraceTransform(
 
         // init configuration
         if (extension.output.isEmpty()) {
-            configuration.output = File(outputDirectory, "result.txt").absolutePath
+            configuration.output = File(reportOutDir, "report_${dirName}_${System.currentTimeMillis()}.txt").absolutePath
+        } else {
+            configuration.output = extension.output
         }
+        val reportOutputFile = File(configuration.output)
+        reportOutputFile.parentFile?.mkdirs()
+
         if (extension.apiList.isNotEmpty()) {
             configuration.apiList = extension.apiList
         } else {
             configuration.apiList = emptyMap()
         }
+
+        // convert className to internalName
+        // xyz.yorek.plugin.sample.MainActivity$InnerClassTest -> xyz/yorek/plugin/sample/MainActivity$InnerClassTest
+        val internalNameApiList = mutableMapOf<String, List<String>>()
+        for (entry in configuration.apiList) {
+            val internalName = entry.key.replace('.', '/')
+            internalNameApiList[internalName] = entry.value
+        }
+        configuration.apiList = internalNameApiList
 
         doTransform(
             classInputs = inputFiles,
@@ -322,7 +338,7 @@ class CompatMethodTraceTransform(
                 File(traceClassFileOutput, outputJarName)
             }
 
-            Log.d(TAG, "CollectJarInputTask input %s -> output %s", jarInput, jarOutput)
+//            Log.d(TAG, "CollectJarInputTask input %s -> output %s", jarInput, jarOutput)
 
             if (!isIncremental && jarOutput.exists()) {
                 jarOutput.delete()

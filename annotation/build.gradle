@@ -6,3 +6,8 @@ java {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
 }
+
+version remotePluginVersion
+group 'com.github.YorekLiu.MethodTracer'
+
+apply from: rootProject.file('gradle/java-publish.gradle')

@@ -32,11 +32,8 @@ android {
 }
 
 dependencies {
-    if (developer) {
-        implementation project(":annotation")
-    } else {
-        implementation "com.github.YorekLiu.MethodTracer:annotation:$remotePluginVersion"
-    }
+    implementation project(":annotation")
+//    implementation "com.github.YorekLiu.MethodTracer:annotation:$remotePluginVersion"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.3.0'
@@ -48,7 +45,7 @@ if (applyPlugin.toBoolean()) {
         enable = true
 
         /**
-         * 扫描结果文件输出路径，默认取build/asmoutput/result.txt
+         * 扫描结果文件输出路径，默认为build/outputs/report/report_{variantName}_{ts}.txt
          */
         // output = null
 
@@ -58,12 +55,12 @@ if (applyPlugin.toBoolean()) {
          * 若方法名为*，则为检测该类下所有方法的调用
          */
         apiList = [
-                "java/lang/Thread"                  : ["<init>", "start"],
-                "android/telephony/TelephonyManager": ["getDeviceId"],
-                "android/content/pm/PackageManager" : ["getInstalledPackages"],
-                "android/widget/ImageView+"         : ["setImageDrawable", "setImageBitmap"],
-                "android/app/ActivityManager"       : ["getRunningAppProcesses"],
-                "android/os/Process"                : ["myPid"]
+                "java.lang.Thread"                  : ["<init>", "start"],
+                "android.telephony.TelephonyManager": ["getDeviceId"],
+                "android.content.pm.PackageManager" : ["getInstalledPackages"],
+                "android.widget.ImageView+"         : ["setImageDrawable", "setImageBitmap"],
+                "android.app.ActivityManager"       : ["getRunningAppProcesses"],
+                "android.os.Process"                : ["myPid"]
         ]
     }
 }

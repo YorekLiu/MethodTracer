@@ -20,6 +20,8 @@ import xyz.yorek.plugin.mt.model.MethodCallerRecord;
  */
 public class CodeScanVisitor extends BaseClassVisitor {
 
+    private static final String TAG = "CodeScanVisitor";
+
     private String className;
 
     public CodeScanVisitor(int i, ClassVisitor classVisitor) {
@@ -75,7 +77,6 @@ public class CodeScanVisitor extends BaseClassVisitor {
                         method2CallersMap.put(name, callers);
                     }
                     callers.add(new MethodCallerRecord(opcode, desc, className, methodName));
-//                    Log.v("CodeScanner", "%d %s %s %s, called by %s.%s", opcode, owner, name, desc, className, methodName);
                 }
             }
         }

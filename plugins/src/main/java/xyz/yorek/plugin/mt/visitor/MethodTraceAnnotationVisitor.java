@@ -96,8 +96,8 @@ public class MethodTraceAnnotationVisitor extends ClassVisitor {
         public void visit(String name, Object value) {
             super.visit(name, value);
             switch (name) {
-                case AsmConstants.METHOD_PROXY_METHOD_ANNOTATION_P_TARGET: {
-                    mMethodProxyRecord.proxyClass = value instanceof Type ? ((Type) value).getInternalName() : value.toString();
+                case AsmConstants.METHOD_PROXY_METHOD_ANNOTATION_P_CLASS_NAME: {
+                    mMethodProxyRecord.proxyClass = value.toString().replace('.', '/');
                     break;
                 }
                 case AsmConstants.METHOD_PROXY_METHOD_ANNOTATION_P_METHOD: {
@@ -112,11 +112,38 @@ public class MethodTraceAnnotationVisitor extends ClassVisitor {
         }
 
         @Override
+        public AnnotationVisitor visitArray(String name) {
+            AnnotationVisitor ret = super.visitArray(name);
+            if (AsmConstants.METHOD_PROXY_METHOD_ANNOTATION_P_CLAZZ.equals(name)) {
+                   return new MethodClassAnnotationVisitor(api, ret, mMethodProxyRecord);
+            }
+            return ret;
+        }
+
+        @Override
         public void visitEnd() {
             super.visitEnd();
             Log.v(TAG, "found annotation MethodProxy with method: %s", mMethodProxyRecord.toString());
             if (!mMethodProxyRecord.isValid()) {
-                throw new GradleException("@MethodProxy is invalid, " + mMethodProxyRecord.toString());
+                throw new GradleException("@MethodProxy is invalid, " + mMethodProxyRecord);
+            }
+        }
+    }
+
+    private static class MethodClassAnnotationVisitor extends AnnotationVisitor {
+
+        private final MethodProxyRecord mMethodProxyRecord;
+
+        public MethodClassAnnotationVisitor(int api, AnnotationVisitor annotationVisitor, MethodProxyRecord methodProxyRecord) {
+            super(api, annotationVisitor);
+            this.mMethodProxyRecord = methodProxyRecord;
+        }
+
+        @Override
+        public void visit(String name, Object value) {
+            super.visit(name, value);
+            if (value instanceof Type) {
+                mMethodProxyRecord.proxyClass = ((Type) value).getInternalName();
             }
         }
     }
