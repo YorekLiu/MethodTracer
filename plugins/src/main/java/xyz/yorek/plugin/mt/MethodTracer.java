@@ -6,11 +6,19 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
@@ -25,24 +33,29 @@ public class MethodTracer {
         this.context = context;
     }
 
-    public void trace(Map<File, File> srcFolderList, Map<File, File> dependencyJarList) {
-        traceMethodFromSrc(srcFolderList);
-        traceMethodFromJar(dependencyJarList);
+    public void trace(Map<File, File> srcFolderList, Map<File, File> dependencyJarList) throws ExecutionException, InterruptedException {
+        List<Future<?>> futures = new LinkedList<>();
+        traceMethodFromSrc(srcFolderList, futures);
+        traceMethodFromJar(dependencyJarList, futures);
 
+        for (Future<?> future : futures) {
+            future.get();
+        }
+        futures.clear();
     }
 
-    private void traceMethodFromSrc(Map<File, File> srcMap) {
+    private void traceMethodFromSrc(Map<File, File> srcMap, List<Future<?>> futures) {
         if (null != srcMap) {
             for (Map.Entry<File, File> entry : srcMap.entrySet()) {
-                innerTraceMethodFromSrc(entry.getKey(), entry.getValue());
+                futures.add(context.executor.submit(() -> innerTraceMethodFromSrc(entry.getKey(), entry.getValue())));
             }
         }
     }
 
-    private void traceMethodFromJar(Map<File, File> dependencyMap) {
+    private void traceMethodFromJar(Map<File, File> dependencyMap, List<Future<?>> futures) {
         if (null != dependencyMap) {
             for (Map.Entry<File, File> entry : dependencyMap.entrySet()) {
-                innerTraceMethodFromJar(entry.getKey(), entry.getValue());
+                futures.add(context.executor.submit(() -> innerTraceMethodFromJar(entry.getKey(), entry.getValue())));
             }
         }
     }
@@ -86,6 +99,11 @@ public class MethodTracer {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                try {
+                    Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             } finally {
                 Util.closeQuietly(is);
                 Util.closeQuietly(os);
@@ -119,7 +137,19 @@ public class MethodTracer {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "[traceMethodFromJar] err! %s", output.getAbsolutePath());
+            Log.e(TAG, "[innerTraceMethodFromJar] err! %s", output.getAbsolutePath());
+            if (e instanceof ZipException) {
+                e.printStackTrace();
+            }
+            try {
+                if (input.length() > 0) {
+                    Files.copy(input.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } else {
+                    Log.e(TAG, "[innerTraceMethodFromJar] input:%s is empty", input);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         } finally {
             try {
                 if (zipOutputStream != null) {
@@ -136,7 +166,7 @@ public class MethodTracer {
         }
     }
 
-    private void listClassFiles(ArrayList<File> classFiles, File folder) {
+    public static void listClassFiles(ArrayList<File> classFiles, File folder) {
         File[] files = folder.listFiles();
         if (null == files) {
             Log.e(TAG, "[listClassFiles] files is null! %s", folder.getAbsolutePath());
@@ -148,16 +178,23 @@ public class MethodTracer {
             }
             if (file.isDirectory()) {
                 listClassFiles(classFiles, file);
-            } else {
-                if (file.isFile()) {
-                    classFiles.add(file);
-                }
-
+            } else if (isNeedTraceClass(file.getName())) {
+                classFiles.add(file);
             }
         }
     }
 
-    public boolean isNeedTraceClass(String fileName) {
-        return fileName.endsWith(".class");
+    private static final String[] UN_TRACE_CLASS = {"R.class", "R$", "Manifest", "BuildConfig"};
+    public static boolean isNeedTraceClass(String fileName) {
+        if (fileName.endsWith(".class")) {
+            for (String unTraceClass : UN_TRACE_CLASS) {
+                if (fileName.contains(unTraceClass)) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 }

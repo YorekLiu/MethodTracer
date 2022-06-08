@@ -4,7 +4,7 @@ import com.android.build.gradle.AppExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import xyz.yorek.plugin.mt.transform.CompatMethodTraceTransform
+import xyz.yorek.plugin.mt.transform.SingleTransform
 import xyz.yorek.plugin.mt.visitor.BaseClassVisitor
 import xyz.yorek.plugin.mt.visitor.CodeScanVisitor
 import xyz.yorek.plugin.mt.visitor.MethodProxyVisitor
@@ -18,7 +18,7 @@ class MethodTracePlugin : Plugin<Project> {
         val configuration: MethodTraceExtension = project.extensions.create("methodTrace", MethodTraceExtension::class.java)
         val android = project.extensions.getByType(AppExtension::class.java)
 
-        val transform = CompatMethodTraceTransform(project, configuration, getVisitorList())
+        val transform = SingleTransform(project, configuration, getVisitorList())
         android.registerTransform(transform)
     }
 

@@ -22,17 +22,17 @@ import java.util.concurrent.Future
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class CompatMethodTraceTransform(
-    val project: Project,
-    val extension: MethodTraceExtension,
-    val visitorList: List<Class<out BaseClassVisitor>>,
+class SingleTransform(
+    private val project: Project,
+    private val extension: MethodTraceExtension,
+    private val visitorList: List<Class<out BaseClassVisitor>>,
     private val configuration: Configuration = Configuration()
 ) : Transform() {
 
     private companion object {
-        private const val TAG = "CompatMethodTraceTransform"
+        private const val TAG = "SingleTransform"
 
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION", "UnstableApiUsage")
         fun getUniqueJarName(jarFile: File): String {
             val origJarName = jarFile.name
             val hashing = Hashing.sha1().hashString(jarFile.path, Charsets.UTF_16LE).toString()
@@ -81,14 +81,41 @@ class CompatMethodTraceTransform(
             outputProvider.deleteAll()
         }
 
-        val buildDir = project.buildDir.absolutePath
-        val dirName = transformInvocation.context.variantName
-        val reportOutDir = Joiner.on(File.separatorChar).join(buildDir, FD_OUTPUTS, "report")
-
         val changedFiles = ConcurrentHashMap<File, Status>()
         val inputToOutput = ConcurrentHashMap<File, File>()
         val inputFiles = ArrayList<File>()
+        val transformDirectory: File? = collectFiles(
+            transformInvocation,
+            changedFiles,
+            inputFiles,
+            outputProvider,
+            inputToOutput
+        )
 
+        if (inputFiles.size == 0 || transformDirectory == null) {
+            Log.i(TAG, "do not find any input files")
+            return
+        }
+
+        initConfig(transformInvocation)
+
+        doTransform(
+            classInputs = inputFiles,
+            changedFiles = changedFiles,
+            isIncremental = isIncremental,
+            traceClassDirectoryOutput = transformDirectory,
+            inputToOutput = inputToOutput,
+            uniqueOutputName = true
+        )
+    }
+
+    private fun collectFiles(
+        transformInvocation: TransformInvocation,
+        changedFiles: ConcurrentHashMap<File, Status>,
+        inputFiles: ArrayList<File>,
+        outputProvider: TransformOutputProvider,
+        inputToOutput: ConcurrentHashMap<File, File>
+    ): File? {
         var transformDirectory: File? = null
 
         for (input in transformInvocation.inputs) {
@@ -100,7 +127,8 @@ class CompatMethodTraceTransform(
                     directoryInput.name,
                     directoryInput.contentTypes,
                     directoryInput.scopes,
-                    Format.DIRECTORY)
+                    Format.DIRECTORY
+                )
 
                 inputToOutput[inputDir] = outputDirectory
                 if (transformDirectory == null) transformDirectory = outputDirectory.parentFile
@@ -114,22 +142,20 @@ class CompatMethodTraceTransform(
                     jarInput.name,
                     jarInput.contentTypes,
                     jarInput.scopes,
-                    Format.JAR)
+                    Format.JAR
+                )
 
                 inputToOutput[inputFile] = outputJar
                 if (transformDirectory == null) transformDirectory = outputJar.parentFile
             }
         }
+        return transformDirectory
+    }
 
-        if (inputFiles.size == 0 || transformDirectory == null) {
-            Log.i(TAG, "do not find any input files")
-            return
-        }
-
-        // Get transform root dir.
-        val outputDirectory = transformDirectory
-
-        // init configuration
+    private fun initConfig(transformInvocation: TransformInvocation) {
+        val buildDir = project.buildDir.absolutePath
+        val dirName = transformInvocation.context.variantName
+        val reportOutDir = Joiner.on(File.separatorChar).join(buildDir, FD_OUTPUTS, "report")
         if (extension.output.isEmpty()) {
             configuration.output = File(reportOutDir, "report_${dirName}_${System.currentTimeMillis()}.txt").absolutePath
         } else {
@@ -152,17 +178,9 @@ class CompatMethodTraceTransform(
             internalNameApiList[internalName] = entry.value
         }
         configuration.apiList = internalNameApiList
-
-        doTransform(
-            classInputs = inputFiles,
-            changedFiles = changedFiles,
-            isIncremental = isIncremental,
-            traceClassDirectoryOutput = outputDirectory,
-            inputToOutput = inputToOutput,
-            uniqueOutputName = true
-        )
     }
 
+    @Suppress("SameParameterValue")
     private fun doTransform(classInputs: Collection<File>,
                             changedFiles: Map<File, Status>,
                             inputToOutput: Map<File, File>,
@@ -218,8 +236,8 @@ class CompatMethodTraceTransform(
         start = System.currentTimeMillis()
         val classGraphBuilder = ClassGraphBuilder()
         val firstTraceBridge = FirstTraceContext()
-        classGraphBuilder.build(dirInputOutMap.keys, jarInputOutMap.keys, firstTraceBridge)
-        val context = TransformContext(configuration, firstTraceBridge, visitorList)
+        classGraphBuilder.build(dirInputOutMap.keys, jarInputOutMap.keys, firstTraceBridge, executor)
+        val context = TransformContext(configuration, firstTraceBridge, visitorList, executor)
         Log.i("ASM.${name}", "[build class graph] cost time: %dms", System.currentTimeMillis() - start)
 
         // pre trace

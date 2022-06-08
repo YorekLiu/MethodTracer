@@ -1,6 +1,8 @@
 package xyz.yorek.plugin.mt;
 
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import xyz.yorek.plugin.mt.model.ClassGraph;
 import xyz.yorek.plugin.mt.model.Configuration;
@@ -17,11 +19,13 @@ public class TransformContext {
     Configuration configuration;
     FirstTraceContext firstTraceContext;
     List<Class<? extends BaseClassVisitor>> visitorList;
+    ExecutorService executor;
 
-    public TransformContext(Configuration configuration, FirstTraceContext firstTraceContext, List<Class<? extends BaseClassVisitor>> visitorList) {
+    public TransformContext(Configuration configuration, FirstTraceContext firstTraceContext, List<Class<? extends BaseClassVisitor>> visitorList, ExecutorService executor) {
         this.configuration = configuration;
         this.firstTraceContext = firstTraceContext;
         this.visitorList = visitorList;
+        this.executor = executor;
     }
 
     public Configuration getConfiguration() {

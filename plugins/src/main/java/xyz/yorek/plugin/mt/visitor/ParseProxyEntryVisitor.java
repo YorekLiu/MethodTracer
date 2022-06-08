@@ -18,7 +18,7 @@ import xyz.yorek.plugin.mt.model.MethodProxyRecord;
  *
  * @author yorek.liu
  */
-public class MethodTraceAnnotationVisitor extends ClassVisitor {
+public class ParseProxyEntryVisitor extends ClassVisitor {
 
     private static final String TAG = "MethodTraceAnnotationVisitor";
 
@@ -27,7 +27,7 @@ public class MethodTraceAnnotationVisitor extends ClassVisitor {
     private boolean mVisitedMethodTraceClass = false;
     private String mClassName;
 
-    public MethodTraceAnnotationVisitor(int api, ClassVisitor cv, FirstTraceContext context) {
+    public ParseProxyEntryVisitor(int api, ClassVisitor cv, FirstTraceContext context) {
         super(api, cv);
         mMethodProxyContext = context.methodProxyContent;
     }

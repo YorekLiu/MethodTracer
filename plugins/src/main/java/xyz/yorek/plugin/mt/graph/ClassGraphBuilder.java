@@ -11,14 +11,20 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import xyz.yorek.plugin.mt.ASMEntry;
 import xyz.yorek.plugin.mt.Log;
+import xyz.yorek.plugin.mt.MethodTracer;
 import xyz.yorek.plugin.mt.model.FirstTraceContext;
 import xyz.yorek.plugin.mt.util.Util;
-import xyz.yorek.plugin.mt.visitor.MethodTraceAnnotationVisitor;
+import xyz.yorek.plugin.mt.visitor.ParseProxyEntryVisitor;
 
 /**
  * Created by yorek.liu on 2021/8/2
@@ -29,31 +35,37 @@ public class ClassGraphBuilder {
 
     private static final String TAG = "ClassGraphBuilder";
 
-    public void build(Collection<File> srcFolderList, Collection<File> dependencyJarList, FirstTraceContext firstTraceContext) {
-        traceMethodFromSrc(srcFolderList, firstTraceContext);
-        traceMethodFromJar(dependencyJarList, firstTraceContext);
+    public void build(Collection<File> srcFolderList, Collection<File> dependencyJarList, FirstTraceContext firstTraceContext, ExecutorService executor) throws ExecutionException, InterruptedException {
+        List<Future<?>> futures = new LinkedList<>();
+        parseAnnotationFromSrc(srcFolderList, firstTraceContext, futures, executor);
+        parseAnnotationFromJar(dependencyJarList, firstTraceContext, futures, executor);
+
+        for (Future<?> future : futures) {
+            future.get();
+        }
+        futures.clear();
     }
 
-    private void traceMethodFromSrc(Collection<File> srcFiles, FirstTraceContext firstTraceContext) {
+    private void parseAnnotationFromSrc(Collection<File> srcFiles, FirstTraceContext firstTraceContext, List<Future<?>> futures, ExecutorService executor) {
         if (null != srcFiles) {
             for (File file : srcFiles) {
-                innerTraceMethodFromSrc(file, firstTraceContext);
+                futures.add(executor.submit(() -> innerParseAnnotationFromSrc(file, firstTraceContext)));
             }
         }
     }
 
-    private void traceMethodFromJar(Collection<File> dependencyFiles, FirstTraceContext firstTraceContext) {
+    private void parseAnnotationFromJar(Collection<File> dependencyFiles, FirstTraceContext firstTraceContext, List<Future<?>> futures, ExecutorService executor) {
         if (null != dependencyFiles) {
             for (File file : dependencyFiles) {
-                innerTraceMethodFromJar(file, firstTraceContext);
+                futures.add(executor.submit(() -> innerParseAnnotationFromJar(file, firstTraceContext)));
             }
         }
     }
 
-    private void innerTraceMethodFromSrc(File input, FirstTraceContext firstTraceContext) {
+    private void innerParseAnnotationFromSrc(File input, FirstTraceContext firstTraceContext) {
         ArrayList<File> classFileList = new ArrayList<>();
         if (input.isDirectory()) {
-            listClassFiles(classFileList, input);
+            MethodTracer.listClassFiles(classFileList, input);
         } else {
             classFileList.add(input);
         }
@@ -61,7 +73,7 @@ public class ClassGraphBuilder {
         for (File classFile : classFileList) {
             InputStream is = null;
             try {
-                if (isNeedTraceClass(classFile.getName())) {
+                if (MethodTracer.isNeedTraceClass(classFile.getName())) {
                     is = new FileInputStream(classFile);
                     buildClassGraph(is, firstTraceContext);
                 }
@@ -73,7 +85,7 @@ public class ClassGraphBuilder {
         }
     }
 
-    private void innerTraceMethodFromJar(File input, FirstTraceContext firstTraceContext) {
+    private void innerParseAnnotationFromJar(File input, FirstTraceContext firstTraceContext) {
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(input);
@@ -82,7 +94,7 @@ public class ClassGraphBuilder {
                 ZipEntry zipEntry = enumeration.nextElement();
                 String zipEntryName = zipEntry.getName();
 
-                if (isNeedTraceClass(zipEntryName)) {
+                if (MethodTracer.isNeedTraceClass(zipEntryName)) {
                     InputStream inputStream = zipFile.getInputStream(zipEntry);
                     buildClassGraph(inputStream, firstTraceContext);
                     Util.closeQuietly(inputStream);
@@ -90,7 +102,7 @@ public class ClassGraphBuilder {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "[traceMethodFromJar] err! %s", input.getAbsolutePath());
+            Log.e(TAG, "[innerParseAnnotationFromJar] err! %s", input.getAbsolutePath());
         } finally {
             try {
                 if (zipFile != null) {
@@ -102,35 +114,10 @@ public class ClassGraphBuilder {
         }
     }
 
-    private void listClassFiles(ArrayList<File> classFiles, File folder) {
-        File[] files = folder.listFiles();
-        if (null == files) {
-            Log.e(TAG, "[listClassFiles] files is null! %s", folder.getAbsolutePath());
-            return;
-        }
-        for (File file : files) {
-            if (file == null) {
-                continue;
-            }
-            if (file.isDirectory()) {
-                listClassFiles(classFiles, file);
-            } else {
-                if (file.isFile()) {
-                    classFiles.add(file);
-                }
-
-            }
-        }
-    }
-
-    public boolean isNeedTraceClass(String fileName) {
-        return fileName.endsWith(".class");
-    }
-
     public static void buildClassGraph(InputStream is, FirstTraceContext firstTraceContext) throws IOException {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassVisitor classVisitor = new ClassGraphVisitor(ASMEntry.ASM_VERSION, classWriter, firstTraceContext.classGraph);
-        ClassVisitor methodTraceAnnotationVisitor = new MethodTraceAnnotationVisitor(ASMEntry.ASM_VERSION, classVisitor, firstTraceContext);
+        ClassVisitor methodTraceAnnotationVisitor = new ParseProxyEntryVisitor(ASMEntry.ASM_VERSION, classVisitor, firstTraceContext);
         ClassReader classReader = new ClassReader(is);
         classReader.accept(methodTraceAnnotationVisitor, ClassReader.SKIP_CODE);
     }
