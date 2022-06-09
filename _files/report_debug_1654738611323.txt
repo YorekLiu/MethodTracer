@@ -1,0 +1,100 @@
+[
+  {
+    "class": "java.lang.Thread",
+    "method": [
+      {
+        "methodName": "<init>",
+        "callers": [
+          "androidx.arch.core.executor.DefaultTaskExecutor$1#newThread (Ljava/lang/Runnable;)V",
+          "androidx.loader.content.ModernAsyncTask$1#newThread (Ljava/lang/Runnable;Ljava/lang/String;)V",
+          "kotlin.concurrent.ThreadsKt$thread$thread$1#<init> ()V"
+        ]
+      }
+    ]
+  },
+  {
+    "class": "android.app.ActivityManager",
+    "method": [
+      {
+        "methodName": "getRunningAppProcesses",
+        "callers": [
+          "xyz.yorek.plugin.sample.MainActivity#testProcessName ()Ljava/util/List;"
+        ]
+      }
+    ]
+  },
+  {
+    "class": "androidx.appcompat.widget.AppCompatImageView",
+    "method": [
+      {
+        "methodName": "setImageDrawable",
+        "callers": [
+          "androidx.constraintlayout.utils.widget.ImageFilterView#init (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.constraintlayout.utils.widget.ImageFilterView#setCrossfade (Landroid/graphics/drawable/Drawable;)V"
+        ]
+      }
+    ]
+  },
+  {
+    "class": "android.widget.ImageView",
+    "method": [
+      {
+        "methodName": "setImageDrawable",
+        "callers": [
+          "androidx.appcompat.app.ActionBarDrawerToggleHoneycomb#setActionBarUpIndicator (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.app.AlertController#setIcon (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.app.AlertController#setupTitle (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.view.menu.ListMenuItemView#onFinishInflate (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.view.menu.ListMenuItemView#setIcon (Landroid/graphics/drawable/Drawable;)V",
+          "com.google.android.material.bottomnavigation.BottomNavigationItemView#setIcon (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ActivityChooserView$ActivityChooserViewAdapter#getView (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ActivityChooserView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ActivityChooserView#setExpandActivityOverflowButtonDrawable (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ActivityChooserView#updateAppearance (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.AppCompatImageHelper#loadFromAttributes (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.AppCompatImageHelper#setImageResource (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.AppCompatImageHelper#setImageResource (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.AppCompatImageView#setImageDrawable (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ScrollingTabContainerView$TabView#update (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ScrollingTabContainerView$TabView#update (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ScrollingTabContainerView$TabView#update (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SearchView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SearchView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SearchView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SearchView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SearchView#<init> (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.SuggestionsAdapter#setViewDrawable (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.Toolbar#setLogo (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.core.widget.ImageViewCompat#setImageTintList (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.core.widget.ImageViewCompat#setImageTintMode (Landroid/graphics/drawable/Drawable;)V",
+          "com.google.android.material.tabs.TabLayout$TabView#update (Landroid/graphics/drawable/Drawable;)V",
+          "com.google.android.material.tabs.TabLayout$TabView#updateTextAndIcon (Landroid/graphics/drawable/Drawable;)V",
+          "com.google.android.material.tabs.TabLayout$TabView#updateTextAndIcon (Landroid/graphics/drawable/Drawable;)V"
+        ]
+      },
+      {
+        "methodName": "setImageBitmap",
+        "callers": [
+          "xyz.yorek.plugin.sample.MainActivity#onCreate (Landroid/graphics/Bitmap;)V",
+          "xyz.yorek.plugin.sample.MainActivity#onCreate (Landroid/graphics/Bitmap;)V",
+          "androidx.transition.TransitionUtils#copyViewImage (Landroid/graphics/Bitmap;)V",
+          "androidx.core.app.SharedElementCallback#onCreateSnapshotView (Landroid/graphics/Bitmap;)V",
+          "androidx.core.app.SharedElementCallback#onCreateSnapshotView (Landroid/graphics/Bitmap;)V",
+          "androidx.appcompat.widget.AppCompatImageView#setImageBitmap (Landroid/graphics/Bitmap;)V"
+        ]
+      }
+    ]
+  },
+  {
+    "class": "androidx.appcompat.widget.ActionMenuPresenter$OverflowMenuButton",
+    "method": [
+      {
+        "methodName": "setImageDrawable",
+        "callers": [
+          "androidx.appcompat.widget.ActionMenuPresenter#initForMenu (Landroid/graphics/drawable/Drawable;)V",
+          "androidx.appcompat.widget.ActionMenuPresenter#setOverflowIcon (Landroid/graphics/drawable/Drawable;)V"
+        ]
+      }
+    ]
+  }
+]

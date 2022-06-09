@@ -13,7 +13,7 @@ dependencies {
     implementation 'com.android.tools.build:gradle:4.0.0'
 }
 
-version remotePluginVersion
+version localVersion
 group 'com.github.YorekLiu'
 
 apply from: rootProject.file('gradle/java-publish.gradle')
