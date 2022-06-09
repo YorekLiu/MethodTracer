@@ -15,6 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
  * @author yorek.liu
  */
 class MainActivity : AppCompatActivity() {
+    private companion object {
+        private const val TAG = "MainActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "编译时代码替换示例"
@@ -35,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                 processName=${processName}
             """.trimIndent()
 
-            if (-10086 != pid && "helloworld" != processName) {
+            if (-10086 != pid || "helloworld" != processName) {
                 this.setBackgroundColor(Color.RED)
             } else {
                 this.setBackgroundColor(Color.GREEN)
@@ -43,6 +47,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         InnerClassTest().testPidInnerClass()
+        Log.d(TAG, "C++ ? ${plus() == "C++"}")
     }
 
     private fun testPid(): Int {
@@ -66,6 +71,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         return "unknown"
+    }
+
+    private fun plus(): String {
+        return "C++"
     }
 
     class InnerClassTest {
