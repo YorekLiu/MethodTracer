@@ -14,12 +14,12 @@ Android 编译期方法扫描、替换的插件工具
 项目根目录 build.gradle 添加 jitpack 仓库：
 
 ```build.gradle
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
 ```
 
 项目根目录 build.gradle 添加插件：
@@ -79,3 +79,5 @@ implementation "com.github.YorekLiu.MethodTracer:annotation:${version}"
   给需要被Hook的方法所对应的实现方法打标，这样可以让原方法与代码替换方法之间产生关联。注解参数解释如下：
 
 详细代码可以参考 sample MethodProxyInst.java文件。
+
+![method_hook](https://raw.githubusercontent.com/YorekLiu/MethodTracer/master/_files/method_hook.webp)
