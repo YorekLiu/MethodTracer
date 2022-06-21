@@ -190,10 +190,7 @@ class SingleTransform(
     ) {
         val executor: ExecutorService = Executors.newFixedThreadPool(16)
 
-        /**
-         * step 1
-         */
-        var start = System.currentTimeMillis()
+        val start = System.currentTimeMillis()
         val futures = LinkedList<Future<*>>()
         val dirInputOutMap = ConcurrentHashMap<File, File>()
         val jarInputOutMap = ConcurrentHashMap<File, File>()
@@ -230,22 +227,25 @@ class SingleTransform(
         }
         futures.clear()
 
-        Log.i(TAG, "[doTransform] Step(1)[Parse]... cost:%sms", System.currentTimeMillis() - start)
+        Log.i("ASM.${name}", "[doTransform] collect files ... cost:%sms", System.currentTimeMillis() - start)
 
         // build class graph
-        start = System.currentTimeMillis()
         val classGraphBuilder = ClassGraphBuilder()
         val firstTraceBridge = FirstTraceContext()
         classGraphBuilder.build(dirInputOutMap.keys, jarInputOutMap.keys, firstTraceBridge, executor)
         val context = TransformContext(configuration, firstTraceBridge, visitorList, executor)
-        Log.i("ASM.${name}", "[build class graph] cost time: %dms", System.currentTimeMillis() - start)
+        Log.i("ASM.${name}", "[build class graph] ... cost:%sms", System.currentTimeMillis() - start)
 
         // pre trace
         PreMethodTracer(context).execute()
 
+        Log.i("ASM.${name}", "[first scan] ... cost:%sms", System.currentTimeMillis() - start)
+
         // trace
         val methodTracer = MethodTracer(context)
         methodTracer.trace(dirInputOutMap, jarInputOutMap)
+
+        Log.i("ASM.${name}", "[real scan] ... cost:%sms", System.currentTimeMillis() - start)
 
         // write result to file
         try {
@@ -253,10 +253,11 @@ class SingleTransform(
         } catch (e: Exception) {
             Log.e("ASM.${name}", "CodeScanner write result file error: %s", e.toString())
         }
-        Log.i("ASM.${name}", "[transform] cost time: %dms", System.currentTimeMillis() - start)
+        Log.i("ASM.${name}", "[doTransform] ... total cost:%sms", System.currentTimeMillis() - start)
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
+    // part of matrix
     class CollectDirectoryInputTask(
         private val directoryInput: File,
         private val mapOfChangedFiles: Map<File, Status>,

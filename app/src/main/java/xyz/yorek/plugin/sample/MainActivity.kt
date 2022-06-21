@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 /**
@@ -24,12 +25,14 @@ class MainActivity : AppCompatActivity() {
         title = "编译时代码替换示例"
         setContentView(R.layout.activity_main)
 
-        findViewById<ImageView>(R.id.imageView1).setImageBitmap(
-            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
-        )
-        findViewById<ImageView>(R.id.imageView2).setImageBitmap(
-            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
-        )
+//        findViewById<ImageView>(R.id.imageView1).setImageBitmap(
+//            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
+//        )
+//        findViewById<ImageView>(R.id.imageView2).setImageBitmap(
+//            BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_round)
+//        )
+        findViewById<ImageView>(R.id.imageView1).setImageResource(R.mipmap.ic_launcher_round)
+        findViewById<ImageView>(R.id.imageView2).setImageResource(R.mipmap.ic_launcher_round)
         findViewById<TextView>(R.id.textView).apply {
             val pid = testPid()
             val processName = testProcessName()

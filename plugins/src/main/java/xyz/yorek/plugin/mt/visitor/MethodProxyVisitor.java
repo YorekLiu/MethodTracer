@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 
+import xyz.yorek.plugin.mt.model.ClassGraph;
 import xyz.yorek.plugin.mt.model.MethodProxyContext;
 import xyz.yorek.plugin.mt.model.MethodProxyRecord;
 
@@ -38,15 +39,21 @@ public class MethodProxyVisitor extends BaseClassVisitor {
         if (ignore || getContext().getMethodProxyContext().skipTrace()) {
             return methodVisitor;
         }
-        return new MethodProxyAdapter(api, methodVisitor, access, name, desc, getContext().getMethodProxyContext());
+        return new MethodProxyAdapter(api, methodVisitor, access, name, desc, className, getContext().getClassGraph(), getContext().getMethodProxyContext());
     }
 
     public static class MethodProxyAdapter extends AdviceAdapter {
 
+        private final String className;
+        private final String methodName;
+        private final ClassGraph classGraph;
         private final MethodProxyContext mMethodProxyContext;
 
-        protected MethodProxyAdapter(int api, MethodVisitor mv, int access, String name, String desc, MethodProxyContext methodProxyContext) {
+        protected MethodProxyAdapter(int api, MethodVisitor mv, int access, String name, String desc, String className, ClassGraph classGraph, MethodProxyContext methodProxyContext) {
             super(api, mv, access, name, desc);
+            this.className = className;
+            this.methodName = name;
+            this.classGraph = classGraph;
             this.mMethodProxyContext = methodProxyContext;
         }
 
@@ -60,6 +67,13 @@ public class MethodProxyVisitor extends BaseClassVisitor {
         private boolean handleMethod(int opcode, String owner, String name, String desc, boolean itf) {
             MethodProxyRecord proxyRecord = mMethodProxyContext.findRecord(owner, name);
             if (proxyRecord != null) {
+                // skip super call
+                if (name.equals(this.methodName)
+                        && desc.equals(methodDesc)
+                        && classGraph.isAssignableFrom(className, owner)) {
+                    return false;
+                }
+
                 if (Opcodes.INVOKESTATIC == opcode) {
                     if (desc.equals(proxyRecord.implMethodDesc)) {
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, proxyRecord.implClass, proxyRecord.implMethod, desc, false);
@@ -76,6 +90,45 @@ public class MethodProxyVisitor extends BaseClassVisitor {
                     if (packedDesc.equals(proxyRecord.implMethodDesc)) {
                         mv.visitMethodInsn(Opcodes.INVOKESTATIC, proxyRecord.implClass, proxyRecord.implMethod, proxyRecord.implMethodDesc, false);
                         return true;
+//                        if (true /* replace */) {
+//                            mv.visitMethodInsn(Opcodes.INVOKESTATIC, proxyRecord.implClass, proxyRecord.implMethod, proxyRecord.implMethodDesc, false);
+//                            return true;
+//                        } else { /* append */
+//                            // this p1 p2 p3 -> ret
+//                            int[] localIndex = new int[packedType.length];
+//                            for (int i = 0; i < packedType.length; i++) {
+//                                Type type = packedType[i];
+//                                localIndex[i] = newLocal(type);
+//                                int storeOpcode;
+//                                switch (type.getSort()) {
+//                                    case Type.BOOLEAN:
+//                                    case Type.CHAR:
+//                                    case Type.BYTE:
+//                                    case Type.SHORT:
+//                                    case Type.INT:
+//                                        storeOpcode = Opcodes.ISTORE;
+//                                        break;
+//                                    case Type.FLOAT:
+//                                        storeOpcode = Opcodes.FSTORE;
+//                                        break;
+//                                    case Type.LONG:
+//                                        storeOpcode = Opcodes.LSTORE;
+//                                        break;
+//                                    case Type.DOUBLE:
+//                                        storeOpcode = Opcodes.DSTORE;
+//                                        break;
+//                                    default:
+//                                        storeOpcode = Opcodes.ASTORE;
+//                                }
+//                                mv.visitVarInsn(storeOpcode, localIndex[i]);
+//                            }
+//
+//                            super.visitMethodInsn(opcode, owner, name, desc, itf);
+//
+//                            // ret
+//
+//                            return true;
+//                        }
                     }
                 }
             }
