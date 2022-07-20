@@ -99,27 +99,7 @@ public class MethodProxyVisitor extends BaseClassVisitor {
 //                            for (int i = 0; i < packedType.length; i++) {
 //                                Type type = packedType[i];
 //                                localIndex[i] = newLocal(type);
-//                                int storeOpcode;
-//                                switch (type.getSort()) {
-//                                    case Type.BOOLEAN:
-//                                    case Type.CHAR:
-//                                    case Type.BYTE:
-//                                    case Type.SHORT:
-//                                    case Type.INT:
-//                                        storeOpcode = Opcodes.ISTORE;
-//                                        break;
-//                                    case Type.FLOAT:
-//                                        storeOpcode = Opcodes.FSTORE;
-//                                        break;
-//                                    case Type.LONG:
-//                                        storeOpcode = Opcodes.LSTORE;
-//                                        break;
-//                                    case Type.DOUBLE:
-//                                        storeOpcode = Opcodes.DSTORE;
-//                                        break;
-//                                    default:
-//                                        storeOpcode = Opcodes.ASTORE;
-//                                }
+//                                int storeOpcode = type.getOpcode(Opcodes.ISTORE);
 //                                mv.visitVarInsn(storeOpcode, localIndex[i]);
 //                            }
 //
