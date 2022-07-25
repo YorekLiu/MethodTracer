@@ -80,4 +80,4 @@ implementation "com.github.YorekLiu.MethodTracer:annotation:${version}"
 
 详细代码可以参考 sample MethodProxyInst.java文件。
 
-![method_hook](https://raw.githubusercontent.com/YorekLiu/MethodTracer/master/_files/method_hook.webp)
+<img src="https://raw.githubusercontent.com/YorekLiu/MethodTracer/master/_files/method_hook.webp" width="300px">
