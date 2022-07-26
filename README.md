@@ -3,7 +3,7 @@
 Android 编译期方法扫描、替换的插件工具
 
 - 可将指定方法的调用扫描出来（可作隐私合规检查工具使用）
-- 也可 Hook 指定方法的实现（底层使用 ASM 插桩，上层在工程代码中通过注解的形式实现。开箱即用，无需了解底层知识）。
+- 也可 Hook 指定方法的实现（可实现 APM 的部分功能，可见[YorekLiu/APMSample](https://github.com/YorekLiu/APMSample)。插件底层使用 ASM 插桩，上层在工程代码中通过注解的形式实现。开箱即用，无需了解底层知识）。
 
 扫描报告、方法 Hook 功能可以先预览 _files 目录下的样本。
 
@@ -78,6 +78,6 @@ implementation "com.github.YorekLiu.MethodTracer:annotation:${version}"
 - MethodProxy
   给需要被Hook的方法所对应的实现方法打标，这样可以让原方法与代码替换方法之间产生关联。注解参数解释如下：
 
-详细代码可以参考 sample MethodProxyInst.java文件。
+详细代码可以参考 sample MethodProxyInst.java文件。APM例子可以
 
 <img src="https://raw.githubusercontent.com/YorekLiu/MethodTracer/master/_files/method_hook.webp" width="300px">
