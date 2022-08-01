@@ -78,6 +78,6 @@ implementation "com.github.YorekLiu.MethodTracer:annotation:${version}"
 - MethodProxy
   给需要被Hook的方法所对应的实现方法打标，这样可以让原方法与代码替换方法之间产生关联。注解参数解释如下：
 
-详细代码可以参考 sample MethodProxyInst.java文件。APM例子可以
+示例代码可以参考 sample MethodProxyInst.java 文件。更实用的例子可见[YorekLiu/APMSample](https://github.com/YorekLiu/APMSample)。
 
 <img src="https://raw.githubusercontent.com/YorekLiu/MethodTracer/master/_files/method_hook.webp" width="300px">
